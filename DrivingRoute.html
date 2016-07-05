@@ -1,0 +1,101 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html {width: 100%;height: 100%; margin:0;font-family:"微软雅黑";}
+        #l-map{height:500px;width:100%;}
+        #r-result,#r-result table{width:100%;}
+        #r-start{width: 20%;display: inline-block}
+
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=vK9dQIay1e6UwEkhb02BNDGpmCbSt2Pe"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+
+    <title>驾车导航的结果面板</title>
+</head>
+<body>
+<div id="l-map"></div>
+<div id="driving_way">
+    <select>
+        <option value="0">最少时间</option>
+        <option value="1">最短距离</option>
+        <option value="2">避开高速</option>
+    </select>
+</div>
+<div id="r-start"><input type="text" id="start" value="蚌埠万达广场写字楼B座"/></div>
+<div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+<input type="text" id="end" value="蚌埠淮河文化广场"/>
+<input type="button" id="result" value="查询"/>
+
+
+<div id="r-result"></div>
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("l-map");
+    map.centerAndZoom(new BMap.Point(117.366288,32.926397),15);
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+    var routePolicy = [BMAP_DRIVING_POLICY_LEAST_TIME,BMAP_DRIVING_POLICY_LEAST_DISTANCE,BMAP_DRIVING_POLICY_AVOID_HIGHWAYS];
+
+    $("#result").click(function(){
+        var start = $("#start").val();
+        var end = $("#end").val();
+        map.clearOverlays();
+        var i=$("#driving_way select").val();
+        search(start,end,routePolicy[i]);
+        function search(start,end,route){
+            var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true,panel: "r-result"},policy: route});
+            driving.search(start,end);
+        }
+    });
+
+    var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+            {"input" : "start"
+                ,"location" : map
+            });
+
+    ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+        var str = "";
+        var _value = e.fromitem.value;
+        var value = "";
+        if (e.fromitem.index > -1) {
+            value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+        }
+        str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+        value = "";
+        if (e.toitem.index > -1) {
+            _value = e.toitem.value;
+            value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+        }
+        str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+        $("#searchResultPanel").innerHTML = str;
+    });
+
+    var myValue;
+    ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+        var _value = e.item.value;
+        myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+        $("#searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+
+        setPlace();
+    });
+
+    function setPlace(){
+        map.clearOverlays();    //清除地图上所有覆盖物
+        function myFun(){
+            var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+            map.centerAndZoom(pp, 18);
+            map.addOverlay(new BMap.Marker(pp));    //添加标注
+        }
+        var local = new BMap.LocalSearch(map, { //智能搜索
+            onSearchComplete: myFun
+        });
+        local.search(myValue);
+    }
+
+
+</script>
