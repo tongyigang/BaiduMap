@@ -37,8 +37,20 @@
     var map = new BMap.Map("l-map");
     map.centerAndZoom(new BMap.Point(117.366288,32.926397),15);
     map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
-
+    var driving;
     var routePolicy = [BMAP_DRIVING_POLICY_LEAST_TIME,BMAP_DRIVING_POLICY_LEAST_DISTANCE,BMAP_DRIVING_POLICY_AVOID_HIGHWAYS];
+    var output = "";
+    var searchComplete = function (results){
+        output = "驾车需要";
+        if (driving.getStatus() != BMAP_STATUS_SUCCESS){
+            return ;
+        }
+        var plan = results.getPlan(0);
+        output += plan.getDuration(true) + "\n";                //获取时间
+        output += "总路程为：" ;
+        output += plan.getDistance(true) + "\n";             //获取距离
+    }
+
 
     $("#result").click(function(){
         var start = $("#start").val();
@@ -47,14 +59,20 @@
         var i=$("#driving_way select").val();
         search(start,end,routePolicy[i]);
         function search(start,end,route){
-            var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true,panel: "r-result"},policy: route});
+             driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true,panel: "r-result"},policy: route
+            ,onSearchComplete: searchComplete,onPolylinesSet:function () {
+                    setTimeout(function(){alert(output)},"1000");
+                }});
             driving.search(start,end);
         }
     });
 
+
+
+    //位置建议
     var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
-            {"input" : "start"
-                ,"location" : map
+            {"input" : "start",
+                "location" : map
             });
 
     ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
@@ -88,7 +106,7 @@
         map.clearOverlays();    //清除地图上所有覆盖物
         function myFun(){
             var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
-            map.centerAndZoom(pp, 18);
+            map.centerAndZoom(pp, 15);
             map.addOverlay(new BMap.Marker(pp));    //添加标注
         }
         var local = new BMap.LocalSearch(map, { //智能搜索
