@@ -23,8 +23,9 @@
 <script type="text/javascript">
 
     var map = new BMap.Map("allmap");
-    var point = new BMap.Point(117.212,32.552);
-    map.centerAndZoom(point, 14);
+    var point = new BMap.Point(117.366288,32.926397);
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+    map.centerAndZoom(point, 20);
     var marker = new BMap.Marker(point);        // 创建标注
     map.addOverlay(marker);                     // 将标注添加到地图中
 

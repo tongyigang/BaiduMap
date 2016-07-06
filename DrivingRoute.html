@@ -6,7 +6,7 @@
         body, html {width: 100%;height: 100%; margin:0;font-family:"微软雅黑";}
         #l-map{height:500px;width:100%;}
         #r-result,#r-result table{width:100%;}
-        #r-start{width: 20%;display: inline-block}
+        #r-start{display: inline-block}
 
     </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=vK9dQIay1e6UwEkhb02BNDGpmCbSt2Pe"></script>
@@ -23,15 +23,14 @@
         <option value="2">避开高速</option>
     </select>
 </div>
-<div id="r-start"><input type="text" id="start" value="蚌埠万达广场写字楼B座"/></div>
+<div id="r-start"><input type="text" id="start" value="蚌埠万达广场写字楼B座" size="40px"/></div>到
 <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
-<input type="text" id="end" value="蚌埠淮河文化广场"/>
+<input type="text" id="end" value="蚌埠淮河文化广场" size="40px"/>
 <input type="button" id="result" value="查询"/>
-
-
 <div id="r-result"></div>
-</body>
-</html>
+
+
+
 <script type="text/javascript">
     // 百度地图API功能
     var map = new BMap.Map("l-map");
@@ -42,9 +41,9 @@
     var output = "";
     var searchComplete = function (results){
         output = "驾车需要";
-        if (driving.getStatus() != BMAP_STATUS_SUCCESS){
-            return ;
-        }
+//        if (driving.getStatus() != BMAP_STATUS_SUCCESS){
+//            return ;
+//        }
         var plan = results.getPlan(0);
         output += plan.getDuration(true) + "\n";                //获取时间
         output += "总路程为：" ;
@@ -59,8 +58,8 @@
         var i=$("#driving_way select").val();
         search(start,end,routePolicy[i]);
         function search(start,end,route){
-             driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true,panel: "r-result"},policy: route
-            ,onSearchComplete: searchComplete,onPolylinesSet:function () {
+            driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true,panel: "r-result"},policy: route
+                ,onSearchComplete: searchComplete,onPolylinesSet:function () {
                     setTimeout(function(){alert(output)},"1000");
                 }});
             driving.search(start,end);
@@ -117,3 +116,7 @@
 
 
 </script>
+
+
+</body>
+</html>
